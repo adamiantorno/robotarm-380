@@ -23,7 +23,7 @@ Before you follow the next steps, make sure you are within the repository's dire
 Next, you want to create your virtual envrionment, activate it, and install the required dependencies. 
 ```
 virtualenv {environment_name}
-<environment_name>/Scripts/activate
+. <environment_name>/Scripts/activate
 pip install -r requirements.txt
 ```
 
