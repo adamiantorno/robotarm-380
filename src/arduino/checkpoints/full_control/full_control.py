@@ -4,7 +4,7 @@ import keyboard
 import serial
 import time, sys
 
-COM_PORT = 'COM7'
+COM_PORT = 'COM5'
 COM_BAUD = 9800
 
 key_code_map = {
@@ -35,6 +35,12 @@ def main():
                 ser.write(key_code_map[event.scan_code])
             except KeyError:
                 print('Not a valid motor control')
+        elif event.event_type == 'up':
+            print('up key')
+            try:
+                ser.write(b'P')
+            except KeyError:
+                print('ERROR in comm w/ Arduino')
  
     
 
