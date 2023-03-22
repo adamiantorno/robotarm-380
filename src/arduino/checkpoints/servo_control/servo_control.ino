@@ -39,7 +39,7 @@ void setup() {
 
 void loop() {
 
-  // Read Sensor Data
+  // Read Sensor Da
   min_state = digitalRead(min_pin);
   max_state = digitalRead(max_pin);
 
@@ -50,7 +50,7 @@ void loop() {
     pwm.setPWM(1, 0, SERVOMIN);
     delay(750);
   } else if (max_state == 1) {
-    pwm.setPWM(1, 0, SERVOMAX);
+    pwm.setPWM(1, 0, );
     delay(750);
   } else {
     if (abs(prev_val - sensorValue) > 10) {
