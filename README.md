@@ -11,6 +11,8 @@ Group Roles:
 
 ## Repository Setup
 
+### Python
+
 After you clone the repository onto your local computer. You need to setup a python virtualenvironment to install the required dependencies (or you can install them to your local computer).
 
 First, ensure that you have python install and the virutalenv library installed:
@@ -36,3 +38,19 @@ To deactivate your virtual environment
 ```
 deactivate
 ```
+
+### Arduino
+
+There are two external libraries you need to install from Arduino's library manager:
+- AccelStepper by MikeMcCauley
+- Adafruit PWM Servo Driver Library by Adafruit
+
+## Hardware
+
+- 1 x Arduinop MEGA
+- 1 x Stepper Motor:
+- 1 x Stepper Motor:
+- 2 x Stepper Motor Driver: 
+- 3 x Servo Motor:
+- 1 x Adafruit Driver:
+
