@@ -126,79 +126,60 @@ void loop () {
     } else {
       servo_dir = 1;
     }
-    delay(100);
+    delay(50);
     Serial.println(servo_dir);
   }
 
-  while (digitalRead(ELBOW_PIN) == LOW && el_prev == HIGH) {
+  if (digitalRead(ELBOW_PIN) == LOW) {
     if (servo_dir == 1) {
       Serial.println("ELBOW FRWD");
-      serv_pos[0] = serv_pos[0] + 10;
+      serv_pos[0] = min(serv_pos[0] + 10, SERVOMAX);
       pwm.setPWM(SERV_ELBOW, 0, serv_pos[0]);
       //pwm.setPWM(SERV_ELBOW, 0, SERVOMAX);
       //delay(100);
     } else {
       Serial.println("ELBOW BWRD");
-      serv_pos[0] = serv_pos[0] - 10;
+      serv_pos[0] = max(serv_pos[0] - 10, SERVOMIN);
       pwm.setPWM(SERV_ELBOW, 0, serv_pos[0]);
       //pwm.setPWM(SERV_ELBOW, 0, SERVOMIN);
       // delay(100);
     }
+    delay(20);
   }
 
-  while (digitalRead(WRIST_PIN) == LOW && wr_prev == HIGH) {
+  if (digitalRead(WRIST_PIN) == LOW) {
     if (servo_dir == 1) {
       Serial.println("WRIST FRWD");
-      serv_pos[1] = serv_pos[1] + 10;
+      serv_pos[1] = min(serv_pos[1] + 10, SERVOMAX);
       pwm.setPWM(SERV_WRIST, 0, serv_pos[1]);
       //pwm.setPWM(SERV_WRIST, 0, SERVOMAX);
       //delay(100);
     } else {
       Serial.println("WRIST BWRD");
-      serv_pos[1] = serv_pos[1] - 10;
+      serv_pos[1] = max(serv_pos[1] - 10, SERVOMIN);
       pwm.setPWM(SERV_WRIST, 0, serv_pos[1]);
       //pwm.setPWM(SERV_WRIST, 0, SERVOMIN);
       // delay(100);
     }
+    delay(20);
   }
 
-  while (digitalRead(GRIPR_PIN) == LOW && gr_prev == HIGH) {
+  if (digitalRead(GRIPR_PIN) == LOW) {
     if (servo_dir == 1) {
       Serial.println("GRIPPER FRWD");
-      serv_pos[2] = serv_pos[2] + 10;
+      serv_pos[2] = min(serv_pos[2] + 10, SERVOMAX);
       pwm.setPWM(SERV_GRIPR, 0, serv_pos[2]);
       //pwm.setPWM(SERV_WRIST, 0, SERVOMAX);
       //delay(100);
     } else {
       Serial.println("GRIPPER BWRD");
-      serv_pos[2] = serv_pos[2] - 10;
+      serv_pos[2] = max(serv_pos[2] - 10, SERVOMIN);
       pwm.setPWM(SERV_GRIPR, 0, serv_pos[2]);
       //pwm.setPWM(SERV_WRIST, 0, SERVOMIN);
       // delay(100);
     }
+    delay(20);
   }
-
-  // if (digitalRead(WRIST_PIN) == LOW) {
-  //   Serial.println("WRIST");
-  //   if (servo_dir == 1) {
-  //     pwm.setPWM(SERV_WRIST, 0, SERVOMIN);
-  //     delay(100);
-  //   } else {
-  //     pwm.setPWM(SERV_WRIST, 0, SERVOMAX);
-  //     delay(100);
-  //   }
-  // }
-
-  // if (digitalRead(GRIPR_PIN) == LOW) {
-  //   Serial.println("GRIPPER");
-  //   if (servo_dir == 1) {
-  //     pwm.setPWM(SERV_GRIPR, 0, SERVOMIN);
-  //     delay(100);
-  //   } else {
-  //     pwm.setPWM(SERV_GRIPR, 0, SERVOMAX);
-  //     delay(100);
-  //   }
-  // }
 
   ch_prev = digitalRead(CHANGE_PIN);
   el_prev = digitalRead(ELBOW_PIN);
