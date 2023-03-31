@@ -54,3 +54,23 @@ There are two external libraries you need to install from Arduino's library mana
 - 3 x Servo Motor:
 - 1 x Adafruit Driver:
 
+# Arduino Setup for Breakboard control
+## Servo
+- Gripper: A10
+- Wrist: A9
+- Elbow: A8
+- Direction Control: A11
+
+- Grippper Ada:
+- Wrist Ada:
+- Elbow Ada:
+
+## Stepper
+- Base Setup: 22, 24, 26, 28 (yellow first)
+- Base Forward: 32
+- Base Backward: 34
+
+- Shoulder Setup: 23, 25, 27, 29
+- Shoulder Forward: 45
+- Shoulder Backward: 47
+
