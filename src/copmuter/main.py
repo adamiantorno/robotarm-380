@@ -20,11 +20,13 @@ def main():
         if key == ord('q'):
             break
 
-        base_angle, shoulder_angle, elbow_angle, wrist_angle = calculate_angle(obj_x, obj_y, par.CAM_HEIGHT)
-        arm.move_to_object(base_angle, shoulder_angle, elbow_angle, wrist_angle)
+        base_angle, shoulder_angle, elbow_angle, wrist_angle = calculate_angle(obj_x, obj_y)
+        arm.move_to(base_angle, shoulder_angle, elbow_angle, wrist_angle)
         arm.grab()
-        arm.move_to_drop_off()
-        arm.move_to_home()
+        arm.move_to(par.BASE_DROP, par.SH_DROP, par.ELB_DROP, par.WRIST_DROP)
+        arm.release()
+        arm.move_to(par.BASE_HOME, par.SH_HOME, par.ELB_HOME, par.WRIST_HOME)
+
 
     cap.release()
     

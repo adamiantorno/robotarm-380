@@ -2,40 +2,54 @@
 
 import serial
 
+import parameters as par
+
 class StepperMotor:
-    def __init__(self) -> None:
+    def __init__(self, min_step, max_step) -> None:
         self.position = 0
         self.state = 0
-
+        self.min = min_step
+        self.max = max_step
+    
+    def angle_to_step(self, angle):
+        return ((angle) / (180) * (self.max - self.min) + self.min)
 
 class ServoMotor:
-    def __init__(self) -> None:
+    def __init__(self, min_pos, max_pos) -> None:
         self.position = 0
         self.state = 0
+        self.max = max_pos
+        self.min = min_pos
+    
+    def angle_to_pos(self, angle):
+        # in Degrees
+        return ((angle) / (180) * (self.max - self.min) + self.min)
 
 
 class RobotArm:
     def __init__(self, serial_port, serial_baud) -> None:
         self.state()
-        self.base = StepperMotor()
-        self.shoulder = StepperMotor()
-        self.elbow = ServoMotor()
-        self.wrist = ServoMotor()
-        self.gripper = ServoMotor()
+        self.base = StepperMotor(par.BASE_MIN, par.BASE_MAX)
+        self.shoulder = StepperMotor(par.SH_MIN, par.SH_MAX)
+        self.elbow = ServoMotor(par.ELB_MIN, par.ELB_MAX)
+        self.wrist = ServoMotor(par.WRIST_MIN, par.WRIST_MAX)
+        self.gripper = ServoMotor(par.GRIP_MIN, par.GRIP_MAX)
         self.ser = serial.Serial(serial_port, serial_baud, timeout=0)
 
-    def move_to_obj(self, base_angle, shoulder_angle, elbow_angle, wrist_angle):
-        self.base.position = base_angle
-        self.shoulder.position = shoulder_angle
-        self.elbow.position = elbow_angle
-        self.wrist.position = wrist_angle
+    def move_to(self, base_angle, shoulder_angle, elbow_angle, wrist_angle):
+        self.base.position = self.base.angle_to_step(base_angle)
+        self.shoulder.position = self.shoulder.angle_to_step(shoulder_angle)
+        self.elbow.position = self.elbow.angle_to_pos(elbow_angle)
+        self.wrist.position = self.wrist.angle_to_pos(wrist_angle)
+        data = bytearray([])
+        self.ser.write()
         
 
-    def grab():
-        pass
-
-    def move_to_drop_off():
-        pass
-
-    def move_to_home():
-        pass
+    def grab(self):
+        self.gripper.position = self.gripper.angle_to_pos(par.GRIP_MAX)
+        self.ser.write()
+    
+    def release(self):
+        self.gripper.position = self.gripper.angle_to_pos(par.GRIP_MIN)
+        self.ser.write()
+        
