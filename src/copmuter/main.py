@@ -2,21 +2,15 @@
 
 import cv2
 
+import parameters as par
 from kinematics import calculate_angle
 from motors import RobotArm
 from objectdetection import create_video_capture, detect_object
 
 
-# Camera Settings
-CAM_NUM = 0
-
-# Camera Height
-CAM_HEIGHT = 4
-
-
 def main():
-    cap = create_video_capture(CAM_NUM)
-    arm = RobotArm()
+    cap = create_video_capture(par.CAM_NUM)
+    arm = RobotArm(par.COM_PORT, par.COM_BAUD)
 
     while True:
         obj_x, obj_y = detect_object(cap)
@@ -26,7 +20,7 @@ def main():
         if key == ord('q'):
             break
 
-        base_angle, shoulder_angle, elbow_angle, wrist_angle = calculate_angle(obj_x, obj_y, CAM_HEIGHT)
+        base_angle, shoulder_angle, elbow_angle, wrist_angle = calculate_angle(obj_x, obj_y, par.CAM_HEIGHT)
         arm.move_to_object(base_angle, shoulder_angle, elbow_angle, wrist_angle)
         arm.grab()
         arm.move_to_drop_off()
