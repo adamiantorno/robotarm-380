@@ -5,38 +5,47 @@
 #include <AccelStepper.h>
 
 // Servo Config
+#define SERV_ELB 9
+#define SERV_WRS 11
+#define SERV_GRR 12
+
+#define S_ELB_MIN 0
+#define S_ELB_MAX 0
+
+#define S_WRS_MIN 0
+#define S_WRS_MAX 0
+
+#define S_GRP_MIN 0
+#define S_GRP_MAX 0
+
 #define SERVOMIN 175
 #define SERVOMAX 500
 #define SERVOCHG 50
 
-#define SERV_ELBOW 9
-#define SERV_WRIST 10
-#define SERV_GRIPR 11
-
 // Stepper Config
-#define BASE_1 22
-#define BASE_2 24
-#define BASE_3 26
-#define BASE_4 28
+#define BASE_STEP 48
+#define BASE_DIR 50
+// #define BASE_3 26
+// #define BASE_4 28
 
 #define BASE_SPD 1000
 #define BASE_ACCEL 500
 
-#define SHOULDER_1 23
-#define SHOULDER_2 25
-#define SHOULDER_3 27
-#define SHOULDER_4 29
+#define SHOULDER_1 45
+#define SHOULDER_2 47
+#define SHOULDER_3 49
+#define SHOULDER_4 51
 
-#define SHOULDER_SPD 1000
-#define SHOULDER_ACCEL 500
+#define SHOULDER_SPD 300
+#define SHOULDER_ACCEL 1000
 
-#define STEPPERCHG 600
+#define STEPPERCHG 10
 
 // Initialize Motors
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-AccelStepper step_base(AccelStepper::FULL4WIRE, BASE_1, BASE_2, BASE_3, BASE_4);
-AccelStepper step_shoulder(AccelStepper::FULL4WIRE, SHOULDER_1, SHOULDER_2, SHOULDER_3, SHOULDER_4);
+AccelStepper step_base(AccelStepper::FULL2WIRE, BASE_STEP, BASE_DIR);
+AccelStepper step_shoulder(AccelStepper::DRIVER, 49, 47);
 
 char incomingByte;
 bool newData;
@@ -68,7 +77,7 @@ void checkSerial() {
         newData = true;
     }
     if (newData == true) {
-        switch(incomingByte) {
+        switch(incomingByte) { 
             case 'W':
                 step_base.move(STEPPERCHG);
                 break;
