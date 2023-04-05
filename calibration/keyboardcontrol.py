@@ -1,11 +1,10 @@
 # Software Developped for ME 380 Project at the University of Waterloo - Group 7
 
 import serial
-from pyfirmata import ArduinoMega
 import keyboard
 import time
 
-COM_PORT = 'COM5'
+COM_PORT = 'COM7'
 COM_BAUD = 9800
 
 key_code_map = {

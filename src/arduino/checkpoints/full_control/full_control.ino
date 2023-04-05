@@ -5,8 +5,8 @@
 #include <Wire.h>
 
 // Servo Config
-#define SERVOMIN 175
-#define SERVOMAX 500
+#define SERVOMIN 180
+#define SERVOMAX 700
 #define SERVOCHG 50
 
 #define POTENTMAX 1023
@@ -40,13 +40,14 @@
 #define SHOULDER_F 45
 #define SHOULDER_B 47
 
-#define STEP_MS 200
-#define STEP_MA 300
+#define STEP_MS 1200
+#define STEP_MA 1000
 
 // Initialize Servo Motors and Pins
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // int serv_pin[3] = {ELBOW_PIN, WRIST_PIN, GRIPR_PIN};
-int serv_pos[3] = {SERVOMIN, SERVOMIN, SERVOMIN};  // {elbow, wrist, gripper}
+const int servo_mid = floor((SERVOMAX+SERVOMIN)/2);
+int serv_pos[3] = {SERVOMAX, SERVOMAX, servo_mid};  // {elbow, wrist, gripper}
 int servo_dir = 1;
 uint8_t ch_prev;
 uint8_t el_prev;
@@ -80,9 +81,9 @@ void setup () {
   wr_prev = digitalRead(WRIST_PIN);
   gr_prev = digitalRead(GRIPR_PIN);
 
-  pwm.setPWM(SERV_ELBOW, 0, SERVOMIN);
-  pwm.setPWM(SERV_WRIST, 0, SERVOMIN);
-  pwm.setPWM(SERV_GRIPR, 0, SERVOMIN);
+  pwm.setPWM(SERV_ELBOW, 0, SERVOMAX);
+  pwm.setPWM(SERV_WRIST, 0, SERVOMAX);
+  pwm.setPWM(SERV_GRIPR, 0, servo_mid);
   
 }
 
@@ -133,18 +134,18 @@ void loop () {
   if (digitalRead(ELBOW_PIN) == LOW) {
     if (servo_dir == 1) {
       Serial.println("ELBOW FRWD");
-      serv_pos[0] = min(serv_pos[0] + 10, SERVOMAX);
+      serv_pos[0] = min(serv_pos[0] + 5, SERVOMAX);
       pwm.setPWM(SERV_ELBOW, 0, serv_pos[0]);
       //pwm.setPWM(SERV_ELBOW, 0, SERVOMAX);
       //delay(100);
     } else {
       Serial.println("ELBOW BWRD");
-      serv_pos[0] = max(serv_pos[0] - 10, SERVOMIN);
+      serv_pos[0] = max(serv_pos[0] - 5, SERVOMIN);
       pwm.setPWM(SERV_ELBOW, 0, serv_pos[0]);
       //pwm.setPWM(SERV_ELBOW, 0, SERVOMIN);
       // delay(100);
     }
-    delay(20);
+    delay(25);
   }
 
   if (digitalRead(WRIST_PIN) == LOW) {
@@ -167,18 +168,18 @@ void loop () {
   if (digitalRead(GRIPR_PIN) == LOW) {
     if (servo_dir == 1) {
       Serial.println("GRIPPER FRWD");
-      serv_pos[2] = min(serv_pos[2] + 10, SERVOMAX);
+      serv_pos[2] = min(serv_pos[2] + 5, SERVOMAX);
       pwm.setPWM(SERV_GRIPR, 0, serv_pos[2]);
       //pwm.setPWM(SERV_WRIST, 0, SERVOMAX);
       //delay(100);
     } else {
       Serial.println("GRIPPER BWRD");
-      serv_pos[2] = max(serv_pos[2] - 10, SERVOMIN);
+      serv_pos[2] = max(serv_pos[2] - 5, SERVOMIN);
       pwm.setPWM(SERV_GRIPR, 0, serv_pos[2]);
       //pwm.setPWM(SERV_WRIST, 0, SERVOMIN);
       // delay(100);
     }
-    delay(20);
+    delay(25);
   }
 
   ch_prev = digitalRead(CHANGE_PIN);
