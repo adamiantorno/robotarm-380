@@ -17,7 +17,6 @@ def add_to_objects(deq, coords):
     return
     
 
-
 def main():
     cap = create_video_capture(par.CAM_NUM)
     object_queue = deque()

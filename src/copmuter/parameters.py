@@ -6,7 +6,7 @@ import numpy as np
 CAM_NUM = 0
 
 # Arduino Config
-COM_PORT = 'COM5'
+COM_PORT = 'COM7'
 COM_BAUD = 9800
 
 # Arm Config (Dimmension in mm)
