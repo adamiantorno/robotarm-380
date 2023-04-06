@@ -51,7 +51,12 @@ class RobotArm:
         self.wrist.position = self.wrist.angle_to_pos(wrist_angle)
         data = bytearray([])
         self.ser.write()
-        
+
+    def move_to_home(self);
+        pass
+
+    def move_to_dropoff(self):
+        pass      
 
     def grab(self):
         self.gripper.position = self.gripper.angle_to_pos(par.GRIP_MAX)
@@ -60,4 +65,4 @@ class RobotArm:
     def release(self):
         self.gripper.position = self.gripper.angle_to_pos(par.GRIP_MIN)
         self.ser.write()
-        
+    

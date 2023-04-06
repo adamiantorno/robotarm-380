@@ -15,19 +15,17 @@ def main():
             
         if event.name == 'q' and event.event_type == 'down':
             # grab
-            pass
+            arm.grab()
+
         elif event.name == 'w' and event.event_type == 'down':
             # release
-            pass
+            arm.release()
         elif event.name == 'e' and event.event_type == 'down':
             # home position
-            pass
+            arm.move_to_home()
         elif event.name == 'r' and event.event_type == 'down':
             # drop off position
-            pass
-            
-
-            print('hello')
+            arm.move_to_dropoff()
 
 
 
