@@ -29,21 +29,20 @@ def detect_object(cap):
     # find contour with the largest area
     max_area = 0
     max_contour = None
+    x, y = None, None
     for contour in contours:
         area = cv2.contourArea(contour)
         if area > max_area:
             max_area = area
             max_contour = contour
         
-        if max_contour is not None:
-            obj_x = obj_center(max_contour)[0]
-            obj_y = obj_center(max_contour)[1]
-
-            # cv2.circle(frame, (obj_x, obj_y), 10, (0, 255, 0), 2)
-
-            height, width, _ = frame.shape
-            x = obj_x - (width / 2)
-            y = (height / 2) - obj_y
-
-         # cv2.imshow('orange detection', frame)    
+    if max_contour is not None:
+        obj_x = obj_center(max_contour)[0]
+        obj_y = obj_center(max_contour)[1]
+        cv2.circle(frame, (obj_x, obj_y), 10, (0, 255, 0), 2)
+        height, width, _ = frame.shape
+        x = obj_x - (width / 2)
+        y = abs(height - obj_y)
+            # print(height, width, obj_x, obj_y, x, y)
+    cv2.imshow('orange detection', frame)    
     return x, y

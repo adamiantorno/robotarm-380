@@ -1,8 +1,15 @@
 # Software Developped for ME 380 Project at the University of Waterloo - Group 7
 
 import serial
+from enum import Enum
 
 import parameters as par
+
+class State(Enum):
+    HOME = 1
+    DROP = 2
+    PICK = 3
+
 
 class StepperMotor:
     def __init__(self, min_step, max_step) -> None:
@@ -13,6 +20,7 @@ class StepperMotor:
     
     def angle_to_step(self, angle):
         return ((angle) / (180) * (self.max - self.min) + self.min)
+
 
 class ServoMotor:
     def __init__(self, min_pos, max_pos) -> None:
@@ -28,7 +36,7 @@ class ServoMotor:
 
 class RobotArm:
     def __init__(self, serial_port, serial_baud) -> None:
-        self.state()
+        self.state = State.HOME
         self.base = StepperMotor(par.BASE_MIN, par.BASE_MAX)
         self.shoulder = StepperMotor(par.SH_MIN, par.SH_MAX)
         self.elbow = ServoMotor(par.ELB_MIN, par.ELB_MAX)
