@@ -9,19 +9,20 @@
 #define S_WRS 11
 #define S_GRP 12
 
-#define S_ELB_MIN 175
+#define S_ELB_MIN 200
 #define S_ELB_MAX 600
-#define S_ELB_HOME 250
+#define S_ELB_HOME 300
+#define S_ELB_CHG 5
 
 #define S_WRS_MIN 125
 #define S_WRS_MAX 550
 #define S_WRS_HOME 250
+#define S_WRS_CHG 5
 
 #define S_GRP_MIN 150
 #define S_GRP_MAX 575
-#define S_GRP_HOME 250
-
-#define SERVOCHG 10
+#define S_GRP_HOME 150
+#define S_GRP_CHG 10
 
 // Stepper Config
 #define BASE_1 33
@@ -29,16 +30,16 @@
 #define BASE_3 37
 #define BASE_4 39
 
-#define BASE_SPD 1000
-#define BASE_ACCEL 500
+#define BASE_SPD 500
+#define BASE_ACCEL 800
+#define BASE_CHG 45
 
 #define SHOULDER_1 49
 #define SHOULDER_2 47
 
-#define SHOULDER_SPD 500
-#define SHOULDER_ACCEL 1000
-
-#define STEPPERCHG 20
+#define SHOULDER_SPD 300
+#define SHOULDER_ACCEL 100
+#define SHOUDLER_CHG 5
 
 // Initialize Motors
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -83,39 +84,39 @@ void checkSerial() {
     if (newData == true) {
       switch(incomingByte) { 
           case 'W':
-              step_base.move(STEPPERCHG);
+              step_base.move(BASE_CHG);
               break;
           case 'S':
-              step_base.move(-STEPPERCHG);
+              step_base.move(-BASE_CHG);
               break;
           case 'E':
-              step_shoulder.move(STEPPERCHG);
+              step_shoulder.move(SHOUDLER_CHG);
               break;
           case 'D':
-              step_shoulder.move(-STEPPERCHG);
+              step_shoulder.move(-SHOUDLER_CHG);
               break;
           case 'R':
-            servo_pos[0] = min(servo_pos[0] + SERVOCHG, S_ELB_MAX);
+            servo_pos[0] = min(servo_pos[0] + S_ELB_CHG, S_ELB_MAX);
             pwm.setPWM(S_ELB, 0, servo_pos[0]);
             break;
           case 'F':
-            servo_pos[0] = max(servo_pos[0] - SERVOCHG, S_ELB_MIN);
+            servo_pos[0] = max(servo_pos[0] - S_ELB_CHG, S_ELB_MIN);
             pwm.setPWM(S_ELB, 0, servo_pos[0]);
             break;
           case 'T':
-            servo_pos[1] = min(servo_pos[1] + SERVOCHG, S_WRS_MAX);
+            servo_pos[1] = min(servo_pos[1] + S_WRS_CHG, S_WRS_MAX);
             pwm.setPWM(S_WRS, 0, servo_pos[1]);
             break;
           case 'G':
-            servo_pos[1] = max(servo_pos[1] - SERVOCHG, S_WRS_MIN);
+            servo_pos[1] = max(servo_pos[1] - S_WRS_CHG, S_WRS_MIN);
             pwm.setPWM(S_WRS, 0, servo_pos[1]);
             break;
           case 'Y':
-            servo_pos[2] = min(servo_pos[2] + SERVOCHG, S_GRP_MAX);
+            servo_pos[2] = min(servo_pos[2] + S_GRP_CHG, S_GRP_MAX);
             pwm.setPWM(S_GRP, 0, servo_pos[2]);
             break;
           case 'H':
-            servo_pos[2] = max(servo_pos[2] - SERVOCHG, S_GRP_MIN);
+            servo_pos[2] = max(servo_pos[2] - S_GRP_CHG, S_GRP_MIN);
             pwm.setPWM(S_GRP, 0, servo_pos[2]);
             break;
       }
