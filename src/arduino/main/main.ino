@@ -5,21 +5,24 @@
 #include <AccelStepper.h>
 
 // Servo Config
-#define S_ELB 9
+#define S_ELB 12
 #define S_WRS 11
-#define S_GRP 12
+#define S_GRP 9
 
 #define S_ELB_MIN 200
 #define S_ELB_MAX 600
-#define S_ELB_HOME 250
+#define S_ELB_HOME 300
+#define S_ELB_CHG 5
 
 #define S_WRS_MIN 125
 #define S_WRS_MAX 550
 #define S_WRS_HOME 250
+#define S_WRS_CHG 5
 
 #define S_GRP_MIN 150
 #define S_GRP_MAX 575
 #define S_GRP_HOME 150
+#define S_GRP_CHG 10
 
 #define SERVOCHG 1
 
@@ -29,21 +32,25 @@
 #define BASE_3 37
 #define BASE_4 39
 
-#define BASE_SPD 1000
-#define BASE_ACCEL 500
+#define BASE_SPD 500
+#define BASE_ACCEL 800
+
+#define BASE_MIN 0
+#define BASE_MAX 1000
+#define BASE_CHG 10
 
 #define SHOULDER_1 49
 #define SHOULDER_2 47
 
-#define SHOULDER_SPD 500
-#define SHOULDER_ACCEL 1000
+#define SHOULDER_SPD 300
+#define SHOULDER_ACCEL 100
 
-#define STEPPERCHG 20
+#define SHOULDER_MIN 0
+#define SHOULDER_MAX 1000
+#define SHOULDER_CHG 20
 
 byte data[5];
 byte byte1, byte2, byte3, byte4, byte5;
-
-int grp_pos;
 
 // Initialize Motors
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -58,10 +65,12 @@ void setup() {
 
   step_base.setMaxSpeed(BASE_SPD);
   step_base.setAcceleration(BASE_ACCEL);
+  step_base.setCurrentPosition(0);
   step_base.disableOutputs();
 
   step_shoulder.setMaxSpeed(SHOULDER_SPD);
   step_shoulder.setAcceleration(SHOULDER_ACCEL);
+  step_shoulder.setCurrentPosition(0);
   step_shoulder.disableOutputs();
   
   pwm.begin();
@@ -74,8 +83,6 @@ void setup() {
   pwm.setPWM(S_ELB, 0, servo_pos[0]);
   pwm.setPWM(S_WRS, 0, servo_pos[1]);
   pwm.setPWM(S_GRP, 0, servo_pos[2]);
-
-
 }
 
 
@@ -94,25 +101,26 @@ void loop() {
     //Serial.write(byte2);
     //Serial.write(byte3);
     //Serial.write(byte4);
-    Serial.write(byte5);
+    //Serial.write(byte5);
 
     // Base Byte
     if (byte1 != 0) {
-      Serial.write("base");
-      int base_pos = (int) byte1;
-      step_shoulder.move(base_pos);
+      int base_pos = map(byte2, 0, 255, BASE_MIN, BASE_MAX);
+      step_base.moveTo(base_pos);
+      step_base.setSpeed(BASE_SPD);
     }
 
     // Shoulder Byte
     if (byte2 != 0) {
-      Serial.write("shoulder");
-      int shoulder_pos = (int) byte2;
-      step_shoulder.move(shoulder_pos);
+      // Serial.write("shoulder");
+      int shoulder_pos = map(byte2, 0, 255, SHOULD_MIN, SHOULD_MAX);
+      step_shoulder.moveTo(shoulder_pos);
+      step_shoulder.setSpeed(SHOULDER_SPD);
     }
 
     // Elbow Byte
     if (byte3 != 0) {
-      Serial.write("elbow");
+      // Serial.write("elbow");
       int elb_pos = map(byte3, 0, 255, S_ELB_MIN, S_ELB_MAX);
       int dist = (elb_pos - servo_pos[0])/SERVOCHG;
       int dir = dist/abs(dist);
@@ -127,7 +135,7 @@ void loop() {
 
     // Wrist Byte
     if (byte4 != 0) {
-      Serial.write("wrist");
+      // Serial.write("wrist");
       int wrs_pos = map(byte4, 0, 255, S_WRS_MIN, S_WRS_MAX);
       int dist = (wrs_pos - servo_pos[1])/SERVOCHG;
       int dir = dist/abs(dist);

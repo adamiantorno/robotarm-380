@@ -5,13 +5,13 @@
 #include <AccelStepper.h>
 
 // Servo Config
-#define S_ELB 9
+#define S_ELB 12
 #define S_WRS 11
-#define S_GRP 12
+#define S_GRP 9
 
 #define S_ELB_MIN 200
 #define S_ELB_MAX 600
-#define S_ELB_HOME 300
+#define S_ELB_HOME 325
 #define S_ELB_CHG 5
 
 #define S_WRS_MIN 125
@@ -32,14 +32,18 @@
 
 #define BASE_SPD 500
 #define BASE_ACCEL 800
-#define BASE_CHG 45
+#define BASE_CHG 20
+#define BASE_MIN -1000 // pickup
+#define BASE_MAX 1000 // dropoff
 
 #define SHOULDER_1 49
 #define SHOULDER_2 47
 
-#define SHOULDER_SPD 300
-#define SHOULDER_ACCEL 100
-#define SHOUDLER_CHG 5
+#define SHOULDER_SPD 3200
+#define SHOULDER_ACCEL 1600
+#define SHOUDLER_CHG 128
+#define SHOULDER_MIN -1000
+#define SHOULDER_MAX 3840
 
 // Initialize Motors
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -56,10 +60,12 @@ void setup() {
 
     step_base.setMaxSpeed(BASE_SPD);
     step_base.setAcceleration(BASE_ACCEL);
+    step_base.setCurrentPosition(0);
     step_base.disableOutputs();
 
     step_shoulder.setMaxSpeed(SHOULDER_SPD);
     step_shoulder.setAcceleration(SHOULDER_ACCEL);
+    step_shoulder.setCurrentPosition(0);
     step_shoulder.disableOutputs();
 
     pwm.begin();
@@ -78,22 +84,31 @@ void loop() {
 
 void checkSerial() {
     if (Serial.available() > 0) {
+        // Serial.write("goodbye");
         incomingByte = Serial.read();
         newData = true;
     }
     if (newData == true) {
       switch(incomingByte) { 
           case 'W':
-              step_base.move(BASE_CHG);
+              if (step_base.currentPosition() < BASE_MAX) {
+                step_base.move(BASE_CHG);
+              }
               break;
           case 'S':
-              step_base.move(-BASE_CHG);
+              if (step_base.currentPosition() > BASE_MIN) {
+                step_base.move(-BASE_CHG);
+              }
               break;
           case 'E':
-              step_shoulder.move(SHOUDLER_CHG);
+              if (step_shoulder.currentPosition() < SHOULDER_MAX) {
+                step_shoulder.move(SHOUDLER_CHG);
+              }
               break;
           case 'D':
-              step_shoulder.move(-SHOUDLER_CHG);
+              if (step_shoulder.currentPosition() > SHOULDER_MIN) {
+                step_shoulder.move(-SHOUDLER_CHG);
+              }
               break;
           case 'R':
             servo_pos[0] = min(servo_pos[0] + S_ELB_CHG, S_ELB_MAX);
@@ -120,6 +135,7 @@ void checkSerial() {
             pwm.setPWM(S_GRP, 0, servo_pos[2]);
             break;
       }
+    // Serial.write(step_base.currentPosition());
     newData = false;
     }
 }

@@ -5,6 +5,8 @@ from enum import Enum
 
 import parameters as par
 
+delimeter = b'\n'
+
 class State(Enum):
     HOME = 1
     DROP = 2
@@ -60,42 +62,47 @@ class RobotArm:
         self.ser.write()
 
     def move_to_home(self):
-        # need to add stepper
+        self.base.position = par.BASE_HOME
+        self.shoulder.position = par.SH_HOME
         self.elbow.position = par.ELB_HOME
         self.wrist.position = par.WRIST_HOME
         self.gripper.position = par.GRIP_HOME
+        base_pos = self.pos_to_byte(self.base.position, par.BASE_MIN, par.BASE_MAX)
+        sh_pos = self.pos_to_byte(self.shoulder.position, par.SH_MIN, par.SH_MAX)
         elb_pos = self.pos_to_byte(self.elbow.position, par.ELB_MIN, par.ELB_MAX)
         wrs_pos = self.pos_to_byte(self.wrist.position, par.WRIST_MIN, par.WRIST_MAX)
         grp_pos = self.pos_to_byte(self.gripper.position, par.GRIP_MIN, par.GRIP_MAX)
-        data = bytes([0, 0, elb_pos, wrs_pos, grp_pos])
-        self.ser.write(data)
+        data = bytes([base_pos, sh_pos, elb_pos, wrs_pos, grp_pos])
+        self.ser.write(data + delimeter)
 
     def move_to_dropoff(self):
-        # need to add stepper
+        self.base.position = par.BASE_DROP
+        self.shoulder.position = par.SH_DROP
         self.elbow.position = par.ELB_DROP
         self.wrist.position = par.WRIST_DROP
         self.gripper.position = par.GRIP_DROP
+        base_pos = self.pos_to_byte(self.base.position, par.BASE_MIN, par.BASE_MAX)
+        sh_pos = self.pos_to_byte(self.shoulder.position, par.SH_MIN, par.SH_MAX)
         elb_pos = self.pos_to_byte(self.elbow.position, par.ELB_MIN, par.ELB_MAX)
         wrs_pos = self.pos_to_byte(self.wrist.position, par.WRIST_MIN, par.WRIST_MAX)
         grp_pos = self.pos_to_byte(self.gripper.position, par.GRIP_MIN, par.GRIP_MAX)
-        data = bytes([0, 0, elb_pos, wrs_pos, grp_pos])
-        self.ser.write(data) 
+        data = bytes([base_pos, sh_pos, elb_pos, wrs_pos, grp_pos])
+        self.ser.write(data + delimeter) 
 
     def grab(self):
         self.gripper.position = par.GRIP_MIN
         b_pos = self.pos_to_byte(self.gripper.position, par.GRIP_MIN, par.GRIP_MAX)
         if b_pos == 0: b_pos = b_pos + 1
         data = bytes([0, 0, 0, 0, b_pos])
-        delimeter = b'\n'
         self.ser.write(data + delimeter)
     
     def release(self):
         self.gripper.position = par.GRIP_MAX
         b_pos = self.pos_to_byte(self.gripper.position, par.GRIP_MIN, par.GRIP_MAX)
         data = bytes([0, 0, 0, 0, b_pos])
-        delimeter = b'\n'
         self.ser.write(data + delimeter)
     
+
     def read(self):
         d = self.ser.readline()
         print(d)

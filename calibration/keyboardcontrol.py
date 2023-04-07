@@ -34,6 +34,7 @@ def main():
             ser.write(key_code_map[event.scan_code])
         except KeyError:
             print('Not a valid motor control')
+        
     ser.close()
 
 

@@ -21,14 +21,14 @@ ORG_LOW = np.array([0, 100, 100])
 ORG_UP = np.array([20, 255, 255])
 
 # Motor Config
-BASE_MIN = 0
-BASE_MAX = 100
-BASE_HOME = 50
-BASE_DROP = 50
+BASE_MIN = -1000 # pick up
+BASE_MAX = 1000  # drop off
+BASE_HOME = 0
+BASE_DROP = 750
 
-SH_MIN = 0
-SH_MAX = 100
-SH_HOME = 50
+SH_MIN = -100 # back
+SH_MAX = 240 # forward
+SH_HOME = 0
 SH_DROP = 50
 
 ELB_MIN = 200
