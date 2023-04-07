@@ -50,7 +50,7 @@ void loop() {
     pwm.setPWM(1, 0, SERVOMIN);
     delay(750);
   } else if (max_state == 1) {
-    pwm.setPWM(1, 0, );
+    pwm.setPWM(1, 0, SERVOMAX);
     delay(750);
   } else {
     if (abs(prev_val - sensorValue) > 10) {
