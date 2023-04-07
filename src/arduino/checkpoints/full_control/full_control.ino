@@ -187,4 +187,3 @@ void loop () {
   wr_prev = digitalRead(WRIST_PIN);
   gr_prev = digitalRead(GRIPR_PIN);
 }
-

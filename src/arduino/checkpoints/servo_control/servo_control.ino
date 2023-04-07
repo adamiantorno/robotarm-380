@@ -8,8 +8,8 @@ const int SERVOMAX = 500;                               // 'maximum' pulse lengt
 const int SERVOMID = floor((SERVOMAX + SERVOMIN) / 2);  // 'mid' pulse length count (out of 4096)
 const int SERVOCHG = 50;                                // 'change' pulse length count
 
-  const int POTENTMAX = 1023;
-  const int POTENTMIN = 0;
+const int POTENTMAX = 1023;
+const int POTENTMIN = 0;
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
