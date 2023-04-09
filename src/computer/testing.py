@@ -35,33 +35,32 @@ def main():
         # keyboard increment
         # base
         elif event.name == 'w' and event.event_type == 'down':
-            arm.base.increment()
+            arm.increment_motor(arm.base)
         elif event.name == 's' and event.event_type == 'down':
-            arm.base.decrement()
-        
+            arm.decrement_motor(arm.base)
         # shoulder
         elif event.name == 'e' and event.event_type == 'down':
-            arm.shoulder.increment()
+            arm.increment_motor(arm.shoulder)
         elif event.name == 'd' and event.event_type == 'down':
-            arm.shoulder.decrement()
+            arm.decrement_motor(arm.shoulder)
         
         # elbow
         elif event.name == 'r' and event.event_type == 'down':
-            arm.elbow.increment()
+            arm.increment_motor(arm.elbow)
         elif event.name == 'f' and event.event_type == 'down':
-            arm.elbow.decrement()
+            arm.decrement_motor(arm.elbow)
         
         # wrist
         elif event.name == 't' and event.event_type == 'down':
-            arm.wrist.increment()
+            arm.increment_motor(arm.wrist)
         elif event.name == 'g' and event.event_type == 'down':
-            arm.wrist.decrement()
+            arm.decrement_motor(arm.wrist)
 
         # gripper
         elif event.name == 'y' and event.event_type == 'down':
-            arm.gripper.increment()
+            arm.increment_motor(arm.gripper)
         elif event.name == 'h' and event.event_type == 'down':
-            arm.gripper.decrement()
+            arm.decrement_motor(arm.gripper)
         arm.read()
         
 

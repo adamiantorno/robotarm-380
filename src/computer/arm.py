@@ -1,82 +1,48 @@
 # Software Developped for ME 380 Project at the University of Waterloo - Group 7
 
 import serial
-from enum import Enum
+import numpy as np
 
 import parameters as par
 
 delimeter = b'\n'
 
 
-class StepperMotor:
-    def __init__(self, home, min_step, max_step, chg, byte_index) -> None:
-        self.position = home
-        self.byte_index = byte_index
-        self.chg = chg
-        self.min = min_step
-        self.max = max_step
-    
-    def pos_to_byte(self):
-        pass
-
-    def increment(self):
-        self.position = min(self.position+self.chg, self.max_step)
-        data = bytes([0, 0, 0, 0, 0])
-
-    def decrement(self):
-        pass
-    
-    # def angle_to_step(self, angle):
-    #     return ((angle) / (180) * (self.max - self.min) + self.min)
-
-
-class ServoMotor:
-    def __init__(self, home, min_pos, max_pos, chg, byte_index) -> None:
-        self.position = home
-        self.byte_index = byte_index
-        self.chg = chg
-        self.max = max_pos
+class Motor:
+    def __init__(self, min_pos, max_pos, chg, home, byte_index) -> None:
         self.min = min_pos
-    
+        self.max = max_pos
+        self.chg = chg
+        self.position = home
+        self.byte_index = byte_index
+        
     def pos_to_byte(self):
-        pass
+        old_range = self.max - self.min
+        new_range = 255
+        new_value = (((self.position - self.min) * new_range) / old_range)
+        return int(new_value)
 
     def increment(self):
-        pass
+        self.position = min(self.position+self.chg, self.max)
+        ser_array = [0] * 6
+        ser_array[self.byte_index] = self.position
+        return ser_array
 
     def decrement(self):
-        pass
-
-
-    
-    # def angle_to_pos(self, angle):
-    #     # in Degrees
-    #     return ((angle) / (180) * (self.max - self.min) + self.min)
+        self.position = max(self.position-self.chg, self.min)
+        ser_array = [0] * 6
+        ser_array[self.byte_index] = self.position
+        return ser_array
     
 
 class RobotArm:
     def __init__(self, serial_port, serial_baud) -> None:
-        self.base = StepperMotor(par.BASE_HOME, par.BASE_MIN, par.BASE_MAX, par.BASE_CHG, par.BASE_BYTE)
-        self.shoulder = StepperMotor(par.SH_MIN, par.SH_MAX)
-        self.elbow = ServoMotor(par.ELB_MIN, par.ELB_MAX)
-        self.wrist = ServoMotor(par.WRIST_MIN, par.WRIST_MAX)
-        self.gripper = ServoMotor(par.GRIP_MIN, par.GRIP_MAX)
+        self.base = Motor(par.BASE_MIN, par.BASE_MAX, par.BASE_CHG, par.BASE_HOME, par.BASE_BYTE)
+        self.shoulder = Motor(par.SH_MIN, par.SH_MAX, par.SH_CHG, par.SH_HOME, par.SH_BYTE)
+        self.elbow = Motor(par.ELB_MIN, par.ELB_MAX, par.ELB_CHG, par.ELB_HOME, par.ELB_BYTE)
+        self.wrist = Motor(par.WRIST_MIN, par.WRIST_MAX, par.WRIST_CHG, par.WRIST_HOME, par.WRIST_BYTE)
+        self.gripper = Motor(par.GRIP_MIN, par.GRIP_MAX, par.GRIP_CHG, par.GRIP_HOME, par.GRIP_BYTE)
         self.ser = serial.Serial(serial_port, serial_baud, timeout=0)
-
-    def pos_to_byte(self, value, min_pos, max_pos):
-        old_range = max_pos - min_pos
-        new_range = 255
-        new_value = (((value - min_pos) * new_range) / old_range)
-        # return bin(int(new_value))[2:].zfill(8)
-        return int(new_value)
-
-    # def move_to(self, base_angle, shoulder_angle, elbow_angle, wrist_angle):
-    #     self.base.position = self.base.angle_to_step(base_angle)
-    #     self.shoulder.position = self.shoulder.angle_to_step(shoulder_angle)
-    #     self.elbow.position = self.elbow.angle_to_pos(elbow_angle)
-    #     self.wrist.position = self.wrist.angle_to_pos(wrist_angle)
-    #     data = bytearray([])
-    #     self.ser.write()
 
     def move_to(self, base, shoulder, elbow, wrist, gripper, forward=True):
         self.base.position = base
@@ -84,28 +50,35 @@ class RobotArm:
         self.elbow.position = elbow
         self.wrist.position = wrist
         self.gripper.position = gripper
-        base_pos = self.pos_to_byte(self.base.position, par.BASE_MIN, par.BASE_MAX)
-        sh_pos = self.pos_to_byte(self.shoulder.position, par.SH_MIN, par.SH_MAX)
-        elb_pos = self.pos_to_byte(self.elbow.position, par.ELB_MIN, par.ELB_MAX)
-        wrs_pos = self.pos_to_byte(self.wrist.position, par.WRIST_MIN, par.WRIST_MAX)
-        grp_pos = self.pos_to_byte(self.gripper.position, par.GRIP_MIN, par.GRIP_MAX)
-        direction = 0x01 if forward else 0x02
+        base_pos = self.base.pos_to_byte()
+        sh_pos = self.shoulder.pos_to_byte()
+        elb_pos = self.elbow.pos_to_byte()
+        wrs_pos = self.wrist.pos_to_byte()
+        grp_pos = self.gripper.pos_to_byte()
+        direction = 0x00 if forward else 0x01
         data = bytes([base_pos, sh_pos, elb_pos, wrs_pos, grp_pos, direction])
         self.ser.write(data + delimeter)
 
     def grab(self):
         self.gripper.position = par.GRIP_MIN
-        b_pos = self.pos_to_byte(self.gripper.position, par.GRIP_MIN, par.GRIP_MAX)
+        b_pos = self.gripper.pos_to_byte()
         if b_pos == 0: b_pos = b_pos + 1
         data = bytes([0, 0, 0, 0, b_pos])
         self.ser.write(data + delimeter)
     
     def release(self):
         self.gripper.position = par.GRIP_MAX
-        b_pos = self.pos_to_byte(self.gripper.position, par.GRIP_MIN, par.GRIP_MAX)
+        b_pos = self.gripper.pos_to_byte()
         data = bytes([0, 0, 0, 0, b_pos])
         self.ser.write(data + delimeter)
     
+    def increment_motor(self, motor):
+        data = motor.increment()
+        self.ser.write(data + delimeter)
+
+    def decrement_motor(self, motor):
+        data = motor.decrement()
+        self.ser.write(data + delimeter)
 
     def read(self):
         d = self.ser.readline()
