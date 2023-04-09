@@ -12,19 +12,56 @@ def main():
         event = keyboard.read_event()
         if event.name == 'esc': # close programw
             break
-        if event.name == 'q' and event.event_type == 'down': # grab
+        if event.name == 'p' and event.event_type == 'down': # pickup
+            print('pick up')
+            # arm.move_to()
+
+        elif event.name =='o' and event.event_type == 'down': # dropoff
+            print('dropoff')
+            arm.move_to(par.BASE_DROP, par.SH_DROP, par.ELB_DROP, par.WRIST_DROP, par.GRIP_DROP, forward=False)
+
+        elif event.name == 'i' and event.event_type == 'down': # home position
+            print('home')
+            arm.move_to(par.BASE_HOME, par.SH_HOME, par.ELB_HOME, par.WRIST_HOME, par.GRIP_HOME, forward=False)
+
+        elif event.name == 'l' and event.event_type == 'down': # gripper grab
             print('grab')
             arm.grab()
-        elif event.name == 'w' and event.event_type == 'down': # release
+
+        elif event.name == 'r' and event.event_type == 'down': # gripper release
             print('release')
             arm.release()
-        elif event.name == 'e' and event.event_type == 'down': # home position
-            print('home')
-            arm.move_to_home()
-        elif event.name == 'r' and event.event_type == 'down': # drop off position
-            print('drop')
-            arm.move_to_dropoff()
+            
+        # keyboard increment
+        # base
+        elif event.name == 'w' and event.event_type == 'down':
+            arm.base.increment()
+        elif event.name == 's' and event.event_type == 'down':
+            arm.base.decrement()
         
+        # shoulder
+        elif event.name == 'e' and event.event_type == 'down':
+            arm.shoulder.increment()
+        elif event.name == 'd' and event.event_type == 'down':
+            arm.shoulder.decrement()
+        
+        # elbow
+        elif event.name == 'r' and event.event_type == 'down':
+            arm.elbow.increment()
+        elif event.name == 'f' and event.event_type == 'down':
+            arm.elbow.decrement()
+        
+        # wrist
+        elif event.name == 't' and event.event_type == 'down':
+            arm.wrist.increment()
+        elif event.name == 'g' and event.event_type == 'down':
+            arm.wrist.decrement()
+
+        # gripper
+        elif event.name == 'y' and event.event_type == 'down':
+            arm.gripper.increment()
+        elif event.name == 'h' and event.event_type == 'down':
+            arm.gripper.decrement()
         arm.read()
         
 

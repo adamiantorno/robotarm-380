@@ -5,7 +5,7 @@
 #include <AccelStepper.h>
 
 // Servo Config
-#define S_ELB 12
+#define S_ELB 14
 #define S_WRS 11
 #define S_GRP 9
 
@@ -30,8 +30,8 @@
 #define BASE_3 37
 #define BASE_4 39
 
-#define BASE_SPD 600
-#define BASE_ACCEL 600  
+#define BASE_SPD 1000
+#define BASE_ACCEL 800 
 #define BASE_CHG 20
 #define BASE_MIN -1000 // pickup
 #define BASE_MAX 1000 // dropoff
