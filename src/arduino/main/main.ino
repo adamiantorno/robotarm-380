@@ -5,7 +5,7 @@
 #include <AccelStepper.h>
 
 // Servo Config
-#define S_ELB 12
+#define S_ELB 14
 #define S_WRS 11
 #define S_GRP 9
 
@@ -120,6 +120,14 @@ void loop() {
         // pwm.setPWM(S_GRP, 0, grp_pos);
       }
 
+      // Shoulder Byte
+      if (shoulder_byte != 0) {
+        // Serial.write("shoulder");
+        int shoulder_pos = map(shoulder_byte, 0, 255, SHOULDER_MIN, SHOULDER_MAX);
+        step_shoulder.moveTo(shoulder_pos);
+        step_shoulder.runToPosition();
+      }
+
       // Wrist Byte
       if (wrist_byte != 0) {
         // Serial.write("wrist");
@@ -150,14 +158,6 @@ void loop() {
         // pwm.setPWM(S_ELB, 0, servo_pos[0]);
       }
 
-      // Shoulder Byte
-      if (shoulder_byte != 0) {
-        // Serial.write("shoulder");
-        int shoulder_pos = map(shoulder_byte, 0, 255, SHOULDER_MIN, SHOULDER_MAX);
-        step_shoulder.moveTo(shoulder_pos);
-        step_shoulder.runToPosition();
-      }
-
       // Base Byte
       if (base_byte != 0) {
         int base_pos = map(base_byte, 0, 255, BASE_MIN, BASE_MAX);
@@ -168,6 +168,7 @@ void loop() {
       // Base Byte
       if (base_byte != 0) {
         int base_pos = map(base_byte, 0, 255, BASE_MIN, BASE_MAX);
+        Serial.write(base_pos);
         step_base.moveTo(base_pos);
         step_base.runToPosition();
       }

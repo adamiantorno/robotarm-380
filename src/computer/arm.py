@@ -25,14 +25,16 @@ class Motor:
     def increment(self):
         self.position = min(self.position+self.chg, self.max)
         ser_array = [0] * 6
-        ser_array[self.byte_index] = self.position
-        return ser_array
+        ser_array[self.byte_index] = self.pos_to_byte()
+        ser_data = bytes(ser_array)
+        return ser_data
 
     def decrement(self):
         self.position = max(self.position-self.chg, self.min)
         ser_array = [0] * 6
-        ser_array[self.byte_index] = self.position
-        return ser_array
+        ser_array[self.byte_index] = self.pos_to_byte()
+        ser_data = bytes(ser_array)
+        return ser_data
     
 
 class RobotArm:

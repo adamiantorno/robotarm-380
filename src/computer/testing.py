@@ -1,5 +1,6 @@
 
 import keyboard
+import time
 
 from kinematics import calculate_angle
 from arm import RobotArm
@@ -7,6 +8,8 @@ import parameters as par
 
 def main():
     arm = RobotArm(par.COM_PORT, par.COM_BAUD)
+    time.sleep(1)
+    print('Ready to send serial data')
 
     while True:
         event = keyboard.read_event()
@@ -28,7 +31,7 @@ def main():
             print('grab')
             arm.grab()
 
-        elif event.name == 'r' and event.event_type == 'down': # gripper release
+        elif event.name == 'k' and event.event_type == 'down': # gripper release
             print('release')
             arm.release()
             
