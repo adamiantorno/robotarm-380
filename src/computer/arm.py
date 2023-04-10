@@ -75,6 +75,13 @@ class RobotArm:
         data = bytes([base_pos, sh_pos, elb_pos, wrs_pos, grp_pos, direction, 0])
         self.ser.write(data + delimeter)
 
+    def drop_off(self):
+        self.move_to(par.BASE_DROP, par.SH_DROP, par.ELB_DROP, par.WRIST_DROP, par.GRIP_DROP, forward=False)
+        # self.move_to(par.BASE_DROP, par.SH_F, par.ELB_F, par.WRIST_F, par.GRIP_DROP, forward=True)
+
+    def home(self):
+        self.move_to(par.BASE_HOME, par.SH_HOME, par.ELB_HOME, par.WRIST_HOME, par.GRIP_HOME, forward=False)
+
     def grab(self):
         self.gripper.position = par.GRIP_MIN
         b_pos = self.gripper.pos_to_byte()

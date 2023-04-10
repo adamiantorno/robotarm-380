@@ -15,17 +15,27 @@ def main():
         event = keyboard.read_event()
         if event.name == 'esc': # close programw
             break
-        if event.name == 'p' and event.event_type == 'down': # pickup
+
+        if event.name == 'u' and event.event_type == 'down': # fake pickup
+            print('fake pickup')
+            arm.move_to(par.BASE_F, par.SH_F, par.ELB_F, par.WRIST_F, par.GRIP_F, forward=True)
+            arm.grab()
+            arm.drop_off()
+            arm.release()
+            # arm.grab()
+            arm.home()
+            arm.grab()
+        elif event.name == 'p' and event.event_type == 'down': # automatedpickup
             print('pick up')
-            # arm.move_to()
+            arm.move_to()
 
         elif event.name =='o' and event.event_type == 'down': # dropoff
             print('dropoff')
-            arm.move_to(par.BASE_DROP, par.SH_DROP, par.ELB_DROP, par.WRIST_DROP, par.GRIP_DROP, forward=False)
+            arm.drop_off()
 
         elif event.name == 'i' and event.event_type == 'down': # home position
             print('home')
-            arm.move_to(par.BASE_HOME, par.SH_HOME, par.ELB_HOME, par.WRIST_HOME, par.GRIP_HOME, forward=False)
+            arm.home()
 
         elif event.name == 'l' and event.event_type == 'down': # gripper grab
             print('grab')
