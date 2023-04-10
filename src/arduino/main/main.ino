@@ -49,7 +49,7 @@
 #define SHOULDER_CHG 128
 
 byte data[6];
-byte base_byte, shoulder_byte, elbow_byte, wrist_byte, gripper_byte;
+byte base_byte, shoulder_byte, elbow_byte, wrist_byte, gripper_byte, dir_byte, icr_byte;
 
 // Initialize Motors
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -86,9 +86,16 @@ void setup() {
 
 
 void loop() {
-  if (Serial.available() >= 6) {
+
+  // if (Serial.available() <= 1) {
+  //   Serial.write(Serial.available());
+  //   incomingByte = Serial.read();
+  //   new_incr = true;
+  // } else
+
+  if (Serial.available() >= 7) {
     byte data[6];
-    int messageLength = Serial.readBytesUntil('\n', data, 7);
+    int messageLength = Serial.readBytesUntil('\n', data, 8);
 
     byte base_byte = data[0];
     byte shoulder_byte = data[1];
@@ -96,16 +103,66 @@ void loop() {
     byte wrist_byte = data[3];
     byte gripper_byte = data[4];
     byte dir_byte = data[5];
-
+    byte icr_byte = data[6];
+    
     //Serial.write(base_byte);
     //Serial.write(shoulder_byte);
     //Serial.write(elbow_byte);
     //Serial.write(wrist_byte);
     //Serial.write(gripper_byte);
 
+    // check if operation is an increment
+    if (icr_byte != 0) {
+      switch(icr_byte) { 
+        case 'W':
+          if (step_base.currentPosition() < BASE_MAX) {
+            step_base.move(BASE_CHG);
+          }
+          break;
+        case 'S':
+          if (step_base.currentPosition() > BASE_MIN) {
+            step_base.move(-BASE_CHG);
+          }
+          break;
+        case 'E':
+          if (step_shoulder.currentPosition() < SHOULDER_MAX) {
+            step_shoulder.move(SHOULDER_CHG);
+          }
+          break;
+        case 'D':
+          if (step_shoulder.currentPosition() > SHOULDER_MIN) {
+            step_shoulder.move(-SHOULDER_CHG);
+          }
+          break;
+        case 'R':
+          servo_pos[0] = min(servo_pos[0] + S_ELB_CHG, S_ELB_MAX);
+          pwm.setPWM(S_ELB, 0, servo_pos[0]);
+          break;
+        case 'F':
+          servo_pos[0] = max(servo_pos[0] - S_ELB_CHG, S_ELB_MIN);
+          pwm.setPWM(S_ELB, 0, servo_pos[0]);
+          break;
+        case 'T':
+          servo_pos[1] = min(servo_pos[1] + S_WRS_CHG, S_WRS_MAX);
+          pwm.setPWM(S_WRS, 0, servo_pos[1]);
+          break;
+        case 'G':
+          servo_pos[1] = max(servo_pos[1] - S_WRS_CHG, S_WRS_MIN);
+          pwm.setPWM(S_WRS, 0, servo_pos[1]);
+          break;
+        case 'Y':
+          servo_pos[2] = min(servo_pos[2] + S_GRP_CHG, S_GRP_MAX);
+          pwm.setPWM(S_GRP, 0, servo_pos[2]);
+          break;
+        case 'H':
+          servo_pos[2] = max(servo_pos[2] - S_GRP_CHG, S_GRP_MIN);
+          pwm.setPWM(S_GRP, 0, servo_pos[2]);
+          break;
+      }
+    }
     // check order of arm operations
     // backwards direction
-    if (dir_byte == 1) {
+    else if (dir_byte == 1) {
       // Gripper Byte
       if (gripper_byte != 0) {
         int grp_pos = map(gripper_byte, 0, 255, S_GRP_MIN, S_GRP_MAX);
@@ -170,7 +227,7 @@ void loop() {
         int base_pos = map(base_byte, 0, 255, BASE_MIN, BASE_MAX);
         Serial.write(base_pos);
         step_base.moveTo(base_pos);
-        step_base.runToPosition();
+        // step_base.runToPosition();
       }
 
       // Shoulder Byte
@@ -178,7 +235,7 @@ void loop() {
         // Serial.write("shoulder");
         int shoulder_pos = map(shoulder_byte, 0, 255, SHOULDER_MIN, SHOULDER_MAX);
         step_shoulder.moveTo(shoulder_pos);
-        step_shoulder.runToPosition();
+        // step_shoulder.runToPosition();
       }
 
       // Elbow Byte
@@ -225,7 +282,8 @@ void loop() {
         // pwm.setPWM(S_GRP, 0, grp_pos);
       }
     }
-    
   }
+  step_base.run();
+  step_shoulder.run();
 }
 

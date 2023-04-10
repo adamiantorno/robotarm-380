@@ -7,6 +7,18 @@ import parameters as par
 
 delimeter = b'\n'
 
+increment_codes = {
+    17: b'W',
+    31: b'S',
+    18: b'E',
+    32: b'D',
+    19: b'R',
+    33: b'F',
+    20: b'T',
+    34: b'G',
+    21: b'Y',
+    35: b'H'
+}
 
 class Motor:
     def __init__(self, min_pos, max_pos, chg, home, byte_index) -> None:
@@ -24,17 +36,19 @@ class Motor:
 
     def increment(self):
         self.position = min(self.position+self.chg, self.max)
-        ser_array = [0] * 6
-        ser_array[self.byte_index] = self.pos_to_byte()
-        ser_data = bytes(ser_array)
-        return ser_data
+        # ser_array = [0] * 6
+        # ser_array[self.byte_index] = self.pos_to_byte()
+        # ser_data = bytes(ser_array)
+        # return ser_data
+        return
 
     def decrement(self):
         self.position = max(self.position-self.chg, self.min)
-        ser_array = [0] * 6
-        ser_array[self.byte_index] = self.pos_to_byte()
-        ser_data = bytes(ser_array)
-        return ser_data
+        # ser_array = [0] * 6
+        # ser_array[self.byte_index] = self.pos_to_byte()
+        # ser_data = bytes(ser_array)
+        # return ser_data
+        return
     
 
 class RobotArm:
@@ -58,29 +72,41 @@ class RobotArm:
         wrs_pos = self.wrist.pos_to_byte()
         grp_pos = self.gripper.pos_to_byte()
         direction = 0x00 if forward else 0x01
-        data = bytes([base_pos, sh_pos, elb_pos, wrs_pos, grp_pos, direction])
+        data = bytes([base_pos, sh_pos, elb_pos, wrs_pos, grp_pos, direction, 0])
         self.ser.write(data + delimeter)
 
     def grab(self):
         self.gripper.position = par.GRIP_MIN
         b_pos = self.gripper.pos_to_byte()
         if b_pos == 0: b_pos = b_pos + 1
-        data = bytes([0, 0, 0, 0, b_pos])
+        data = bytes([0, 0, 0, 0, b_pos, 0, 0])
         self.ser.write(data + delimeter)
     
     def release(self):
         self.gripper.position = par.GRIP_MAX
         b_pos = self.gripper.pos_to_byte()
-        data = bytes([0, 0, 0, 0, b_pos])
+        data = bytes([0, 0, 0, 0, b_pos, 0, 0])
         self.ser.write(data + delimeter)
     
-    def increment_motor(self, motor):
-        data = motor.increment()
+    def increment_motor(self, motor, d):
+        motor.increment()
+        ser_array = [0] * 7
+        ser_array[6] = ord(increment_codes[d])
+        print(ser_array)
+        data = bytes(ser_array)
+        # self.ser.write(increment_codes[d])
         self.ser.write(data + delimeter)
+        return
 
-    def decrement_motor(self, motor):
-        data = motor.decrement()
+    def decrement_motor(self, motor, d):
+        motor.decrement()
+        ser_array = [0] * 7
+        ser_array[6] = ord(increment_codes[d])
+        print(ser_array)
+        data = bytes(ser_array)
+        # self.ser.write(increment_codes[d])
         self.ser.write(data + delimeter)
+        return
 
     def read(self):
         d = self.ser.readline()

@@ -41,7 +41,7 @@
 
 #define SHOULDER_SPD 3200
 #define SHOULDER_ACCEL 1600
-#define SHOUDLER_CHG 128
+#define SHOULDER_CHG 128
 #define SHOULDER_MIN -1000
 #define SHOULDER_MAX 3840
 
@@ -102,12 +102,12 @@ void checkSerial() {
               break;
           case 'E':
               if (step_shoulder.currentPosition() < SHOULDER_MAX) {
-                step_shoulder.move(SHOUDLER_CHG);
+                step_shoulder.move(SHOULDER_CHG);
               }
               break;
           case 'D':
               if (step_shoulder.currentPosition() > SHOULDER_MIN) {
-                step_shoulder.move(-SHOUDLER_CHG);
+                step_shoulder.move(-SHOULDER_CHG);
               }
               break;
           case 'R':
