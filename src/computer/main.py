@@ -25,11 +25,11 @@ def main():
     while True:
         obj_x, obj_y = detect_object(cap)
         print(f'Object found at ({obj_x}, {obj_y})')
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(1) == ord('z'):
             break
 
         # Chedck if object is in deque already
-        add_to_objects(object_queue, (obj_x, obj_y))
+        # add_to_objects(object_queue, (obj_x, obj_y))
 
         # base_angle, shoulder_angle, elbow_angle, wrist_angle = calculate_angle(obj_x, obj_y)
         # arm.move_to(base_angle, shoulder_angle, elbow_angle, wrist_angle)

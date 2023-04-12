@@ -5,7 +5,7 @@
 #include <AccelStepper.h>
 
 // Servo Config
-#define S_ELB 12
+#define S_ELB 14
 #define S_WRS 11
 #define S_GRP 9
 
@@ -30,8 +30,8 @@
 #define BASE_3 37
 #define BASE_4 39
 
-#define BASE_SPD 500
-#define BASE_ACCEL 800
+#define BASE_SPD 1000
+#define BASE_ACCEL 800 
 #define BASE_CHG 20
 #define BASE_MIN -1000 // pickup
 #define BASE_MAX 1000 // dropoff
@@ -41,7 +41,7 @@
 
 #define SHOULDER_SPD 3200
 #define SHOULDER_ACCEL 1600
-#define SHOUDLER_CHG 128
+#define SHOULDER_CHG 128
 #define SHOULDER_MIN -1000
 #define SHOULDER_MAX 3840
 
@@ -102,12 +102,12 @@ void checkSerial() {
               break;
           case 'E':
               if (step_shoulder.currentPosition() < SHOULDER_MAX) {
-                step_shoulder.move(SHOUDLER_CHG);
+                step_shoulder.move(SHOULDER_CHG);
               }
               break;
           case 'D':
               if (step_shoulder.currentPosition() > SHOULDER_MIN) {
-                step_shoulder.move(-SHOUDLER_CHG);
+                step_shoulder.move(-SHOULDER_CHG);
               }
               break;
           case 'R':

@@ -19,6 +19,7 @@ def create_video_capture(device_id):
 
 def detect_object(cap):
     ret, frame = cap.read()
+    frame = frame[60:360, 200:600]
     imgBlur = cv2.GaussianBlur(frame, (7, 7), 3)
     hsv = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2HSV)
     

@@ -5,13 +5,13 @@
 #include <AccelStepper.h>
 
 // Servo Config
-#define S_ELB 12
+#define S_ELB 14
 #define S_WRS 11
 #define S_GRP 9
 
 #define S_ELB_MIN 200
 #define S_ELB_MAX 600
-#define S_ELB_HOME 300
+#define S_ELB_HOME 325      
 #define S_ELB_CHG 5
 
 #define S_WRS_MIN 125
@@ -32,25 +32,24 @@
 #define BASE_3 37
 #define BASE_4 39
 
-#define BASE_SPD 500
-#define BASE_ACCEL 800
-
-#define BASE_MIN 0
-#define BASE_MAX 1000
-#define BASE_CHG 10
+#define BASE_SPD 600
+#define BASE_ACCEL 600
+#define BASE_CHG 20
+#define BASE_MIN -1000 // pickup
+#define BASE_MAX 1000 // dropoff
 
 #define SHOULDER_1 49
 #define SHOULDER_2 47
 
-#define SHOULDER_SPD 300
-#define SHOULDER_ACCEL 100
+// shoulder is 1/16 steps
+#define SHOULDER_SPD 3200
+#define SHOULDER_ACCEL 1600
+#define SHOULDER_MIN -1000
+#define SHOULDER_MAX 3840
+#define SHOULDER_CHG 128
 
-#define SHOULDER_MIN 0
-#define SHOULDER_MAX 1000
-#define SHOULDER_CHG 20
-
-byte data[5];
-byte byte1, byte2, byte3, byte4, byte5;
+byte data[6];
+byte base_byte, shoulder_byte, elbow_byte, wrist_byte, gripper_byte, dir_byte, icr_byte;
 
 // Initialize Motors
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -87,82 +86,206 @@ void setup() {
 
 
 void loop() {
-  if (Serial.available() >= 5) {
-    byte data[5];
-    int messageLength = Serial.readBytesUntil('\n', data, 6);
 
-    byte byte1 = data[0];
-    byte byte2 = data[1];
-    byte byte3 = data[2];
-    byte byte4 = data[3];
-    byte byte5 = data[4];
+  // if (Serial.available() <= 1) {
+  //   Serial.write(Serial.available());
+  //   incomingByte = Serial.read();
+  //   new_incr = true;
+  // } else
 
-    //Serial.write(byte1);
-    //Serial.write(byte2);
-    //Serial.write(byte3);
-    //Serial.write(byte4);
-    //Serial.write(byte5);
+  if (Serial.available() >= 7) {
+    byte data[6];
+    int messageLength = Serial.readBytesUntil('\n', data, 8);
 
-    // Base Byte
-    if (byte1 != 0) {
-      int base_pos = map(byte2, 0, 255, BASE_MIN, BASE_MAX);
-      step_base.moveTo(base_pos);
-      step_base.setSpeed(BASE_SPD);
-    }
+    byte base_byte = data[0];
+    byte shoulder_byte = data[1];
+    byte elbow_byte = data[2];
+    byte wrist_byte = data[3];
+    byte gripper_byte = data[4];
+    byte dir_byte = data[5];
+    byte icr_byte = data[6];
+    
+    //Serial.write(base_byte);
+    //Serial.write(shoulder_byte);
+    //Serial.write(elbow_byte);
+    //Serial.write(wrist_byte);
+    //Serial.write(gripper_byte);
 
-    // Shoulder Byte
-    if (byte2 != 0) {
-      // Serial.write("shoulder");
-      int shoulder_pos = map(byte2, 0, 255, SHOULD_MIN, SHOULD_MAX);
-      step_shoulder.moveTo(shoulder_pos);
-      step_shoulder.setSpeed(SHOULDER_SPD);
-    }
-
-    // Elbow Byte
-    if (byte3 != 0) {
-      // Serial.write("elbow");
-      int elb_pos = map(byte3, 0, 255, S_ELB_MIN, S_ELB_MAX);
-      int dist = (elb_pos - servo_pos[0])/SERVOCHG;
-      int dir = dist/abs(dist);
-      for (int i = 0; i < abs(dist); i++) {
-        delay(5);
-        servo_pos[0] = servo_pos[0] + dir*SERVOCHG;
-        pwm.setPWM(S_ELB, 0, servo_pos[0]);
+    // check if operation is an increment
+    if (icr_byte != 0) {
+      switch(icr_byte) { 
+        case 'W':
+          if (step_base.currentPosition() < BASE_MAX) {
+            step_base.move(BASE_CHG);
+          }
+          break;
+        case 'S':
+          if (step_base.currentPosition() > BASE_MIN) {
+            step_base.move(-BASE_CHG);
+          }
+          break;
+        case 'E':
+          if (step_shoulder.currentPosition() < SHOULDER_MAX) {
+            step_shoulder.move(SHOULDER_CHG);
+          }
+          break;
+        case 'D':
+          if (step_shoulder.currentPosition() > SHOULDER_MIN) {
+            step_shoulder.move(-SHOULDER_CHG);
+          }
+          break;
+        case 'R':
+          servo_pos[0] = min(servo_pos[0] + S_ELB_CHG, S_ELB_MAX);
+          pwm.setPWM(S_ELB, 0, servo_pos[0]);
+          break;
+        case 'F':
+          servo_pos[0] = max(servo_pos[0] - S_ELB_CHG, S_ELB_MIN);
+          pwm.setPWM(S_ELB, 0, servo_pos[0]);
+          break;
+        case 'T':
+          servo_pos[1] = min(servo_pos[1] + S_WRS_CHG, S_WRS_MAX);
+          pwm.setPWM(S_WRS, 0, servo_pos[1]);
+          break;
+        case 'G':
+          servo_pos[1] = max(servo_pos[1] - S_WRS_CHG, S_WRS_MIN);
+          pwm.setPWM(S_WRS, 0, servo_pos[1]);
+          break;
+        case 'Y':
+          servo_pos[2] = min(servo_pos[2] + S_GRP_CHG, S_GRP_MAX);
+          pwm.setPWM(S_GRP, 0, servo_pos[2]);
+          break;
+        case 'H':
+          servo_pos[2] = max(servo_pos[2] - S_GRP_CHG, S_GRP_MIN);
+          pwm.setPWM(S_GRP, 0, servo_pos[2]);
+          break;
       }
-      // servo_pos[0] = elb_pos;
-      // pwm.setPWM(S_ELB, 0, servo_pos[0]);
     }
-
-    // Wrist Byte
-    if (byte4 != 0) {
-      // Serial.write("wrist");
-      int wrs_pos = map(byte4, 0, 255, S_WRS_MIN, S_WRS_MAX);
-      int dist = (wrs_pos - servo_pos[1])/SERVOCHG;
-      int dir = dist/abs(dist);
-      for (int i = 0; i < abs(dist); i++) {
-        delay(5);
-        servo_pos[1] = servo_pos[1] + dir*SERVOCHG;
-        pwm.setPWM(S_WRS, 0, servo_pos[1]);
+    // check order of arm operations
+    // backwards direction
+    else if (dir_byte == 1) {
+      // Gripper Byte
+      if (gripper_byte != 0) {
+        int grp_pos = map(gripper_byte, 0, 255, S_GRP_MIN, S_GRP_MAX);
+        int dist = (grp_pos - servo_pos[2])/SERVOCHG;
+        int dir = dist/abs(dist);
+        for (int i = 0; i < abs(dist); i++) {
+          delay(5);
+          servo_pos[2] = servo_pos[2] + dir*SERVOCHG;
+          pwm.setPWM(S_GRP, 0, servo_pos[2]);
+        }
+        // servo_pos[2] = grp_pos;
+        // pwm.setPWM(S_GRP, 0, grp_pos);
       }
-      // servo_pos[1] = wrs_pos;
-      // pwm.setPWM(S_WRS, 0, servo_pos[1]);
-    }
 
-    // Gripper Byte
-    if (byte5 != 0) {
-      int grp_pos = map(byte5, 0, 255, S_GRP_MIN, S_GRP_MAX);
-      int dist = (grp_pos - servo_pos[2])/SERVOCHG;
-      int dir = dist/abs(dist);
-      for (int i = 0; i < abs(dist); i++) {
-        delay(5);
-        servo_pos[2] = servo_pos[2] + dir*SERVOCHG;
-        pwm.setPWM(S_GRP, 0, servo_pos[2]);
+      // Shoulder Byte
+      if (shoulder_byte != 0) {
+        // Serial.write("shoulder");
+        int shoulder_pos = map(shoulder_byte, 0, 255, SHOULDER_MIN, SHOULDER_MAX);
+        step_shoulder.moveTo(shoulder_pos);
+        step_shoulder.runToPosition();
       }
-      // servo_pos[2] = grp_pos;
-      // pwm.setPWM(S_GRP, 0, grp_pos);
+
+      // Base Byte
+      if (base_byte != 0) {
+        int base_pos = map(base_byte, 0, 255, BASE_MIN, BASE_MAX);
+        step_base.moveTo(base_pos);
+        step_base.runToPosition();
+      }
+
+      // Elbow Byte
+      if (elbow_byte != 0) {
+        // Serial.write("elbow");
+        int elb_pos = map(elbow_byte, 0, 255, S_ELB_MIN, S_ELB_MAX);
+        int dist = (elb_pos - servo_pos[0])/SERVOCHG;
+        int dir = dist/abs(dist);
+        for (int i = 0; i < abs(dist); i++) {
+          delay(5);
+          servo_pos[0] = servo_pos[0] + dir*SERVOCHG;
+          pwm.setPWM(S_ELB, 0, servo_pos[0]);
+        }
+        // servo_pos[0] = elb_pos;
+        // pwm.setPWM(S_ELB, 0, servo_pos[0]);
+      }
+
+      // Wrist Byte
+      if (wrist_byte != 0) {
+        // Serial.write("wrist");
+        int wrs_pos = map(wrist_byte, 0, 255, S_WRS_MIN, S_WRS_MAX);
+        int dist = (wrs_pos - servo_pos[1])/SERVOCHG;
+        int dir = dist/abs(dist);
+        for (int i = 0; i < abs(dist); i++) {
+          delay(5);
+          servo_pos[1] = servo_pos[1] + dir*SERVOCHG;
+          pwm.setPWM(S_WRS, 0, servo_pos[1]);
+        }
+        // servo_pos[1] = wrs_pos;
+        // pwm.setPWM(S_WRS, 0, servo_pos[1]);
+      }
+
+    } else { // FORWARD
+      // Base Byte
+      if (base_byte != 0) {
+        int base_pos = map(base_byte, 0, 255, BASE_MIN, BASE_MAX);
+        Serial.write(base_pos);
+        step_base.moveTo(base_pos);
+        step_base.runToPosition();
+      }
+
+            // Elbow Byte
+      if (elbow_byte != 0) {
+        // Serial.write("elbow");
+        int elb_pos = map(elbow_byte, 0, 255, S_ELB_MIN, S_ELB_MAX);
+        int dist = (elb_pos - servo_pos[0])/SERVOCHG;
+        int dir = dist/abs(dist);
+        for (int i = 0; i < abs(dist); i++) {
+          delay(5);
+          servo_pos[0] = servo_pos[0] + dir*SERVOCHG;
+          pwm.setPWM(S_ELB, 0, servo_pos[0]);
+        }
+        // servo_pos[0] = elb_pos;
+        // pwm.setPWM(S_ELB, 0, servo_pos[0]);
+      }
+
+      // Wrist Byte
+      if (wrist_byte != 0) {
+        // Serial.write("wrist");
+        int wrs_pos = map(wrist_byte, 0, 255, S_WRS_MIN, S_WRS_MAX);
+        int dist = (wrs_pos - servo_pos[1])/SERVOCHG;
+        int dir = dist/abs(dist);
+        for (int i = 0; i < abs(dist); i++) {
+          delay(5);
+          servo_pos[1] = servo_pos[1] + dir*SERVOCHG;
+          pwm.setPWM(S_WRS, 0, servo_pos[1]);
+        }
+        // servo_pos[1] = wrs_pos;
+        // pwm.setPWM(S_WRS, 0, servo_pos[1]);
+      }
+
+      // Gripper Byte
+      if (gripper_byte != 0) {
+        int grp_pos = map(gripper_byte, 0, 255, S_GRP_MIN, S_GRP_MAX);
+        int dist = (grp_pos - servo_pos[2])/SERVOCHG;
+        int dir = dist/abs(dist);
+        for (int i = 0; i < abs(dist); i++) {
+          delay(5);
+          servo_pos[2] = servo_pos[2] + dir*SERVOCHG;
+          pwm.setPWM(S_GRP, 0, servo_pos[2]);
+        }
+        // servo_pos[2] = grp_pos;
+        // pwm.setPWM(S_GRP, 0, grp_pos);
+      }
+
+      // Shoulder Byte
+      if (shoulder_byte != 0) {
+        // Serial.write("shoulder");
+        int shoulder_pos = map(shoulder_byte, 0, 255, SHOULDER_MIN, SHOULDER_MAX);
+        step_shoulder.moveTo(shoulder_pos);
+        step_shoulder.runToPosition();
+      }
+
     }
   }
   step_base.run();
-  step_shoulder.run();  
+  step_shoulder.run();
 }
 
